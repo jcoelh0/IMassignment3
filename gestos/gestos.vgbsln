@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<GestureBuilderFile xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<SolutionFile>
+		<Header>
+			<Date>2019-12-02</Date>
+			<Time>18:12:37.9957631+00:00</Time>
+			<Version>1</Version>
+			<Type>Solution</Type>
+			<ID>37a75aaf-6bf9-4e16-842a-3df075331172</ID>
+		</Header>
+		<Solution_Data>
+			<Files>
+				<Name />
+				<Content>
+					<Items>
+						<File>Avancar_Left.vgbproj</File>
+					</Items>
+					<Items>
+						<File>Avancar_Left.a.vgbproj</File>
+					</Items>
+					<Items>
+						<File>esvaziarCarrinho.vgbproj</File>
+					</Items>
+					<Items>
+						<File>esvaziarCarrinho.a.vgbproj</File>
+					</Items>
+					<Items>
+						<File>Recuar_Right.vgbproj</File>
+					</Items>
+					<Items>
+						<File>Recuar_Right.a.vgbproj</File>
+					</Items>
+					<Items>
+						<File>Scroll_Down_Right.vgbproj</File>
+					</Items>
+					<Items>
+						<File>Scroll_Down_Right.a.vgbproj</File>
+					</Items>
+					<Items>
+						<File>Scroll_Up.vgbproj</File>
+					</Items>
+					<Items>
+						<File>Scroll_Up.a.vgbproj</File>
+					</Items>
+					<Items>
+						<File>StopScroll.vgbproj</File>
+					</Items>
+					<Items>
+						<File>StopScroll.a.vgbproj</File>
+					</Items>
+				</Content>
+			</Files>
+		</Solution_Data>
+		<UI_State />
+		<Attributes />
+	</SolutionFile>
+</GestureBuilderFile>
