@@ -82,6 +82,10 @@ namespace AppGui
             //Console.Write(e.Message.ToString());
             //this.e = e;
             //Console.WriteLine(e.Message);
+
+            WebDriverWait wait;
+
+
             var doc = XDocument.Parse(e.Message);
 
             var com = doc.Descendants("command").FirstOrDefault().Value;
@@ -90,7 +94,6 @@ namespace AppGui
 
             double confidence = double.Parse(json.recognized[2].ToString());
 
-            WebDriverWait wait;
 
             //Console.WriteLine(json.recognized[2].ToString());
 
@@ -122,10 +125,6 @@ namespace AppGui
                     //t.Speak("Não percebi");
                     break;
             }
-
-            //var site = "https://www.ubereats.com/pt-PT/feed/?d=" + DateTime.Now.ToString("yyyy-M-dd") + "&et=870&pl=JTdCJTIyYWRkcmVzcyUyMiUzQSUyMkRFVEklMjAtJTIwRGVwYXJ0YW1lbnRvJTIwZGUlMjBFbGVjdHIlQzMlQjNuaWNhJTJDJTIwVGVsZWNvbXVuaWNhJUMzJUE3JUMzJUI1ZXMlMjBlJTIwSW5mb3JtJUMzJUExdGljYSUyMiUyQyUyMnJlZmVyZW5jZSUyMiUzQSUyMkNoSUpzVjdhcjZxaUl3MFJidHRlelhxZVI3YyUyMiUyQyUyMnJlZmVyZW5jZVR5cGUlMjIlM0ElMjJnb29nbGVfcGxhY2VzJTIyJTJDJTIybGF0aXR1ZGUlMjIlM0E0MC42MzMxNzMxMDAwMDAwMSUyQyUyMmxvbmdpdHVkZSUyMiUzQS04LjY1OTQ5MzMlN0Q%3D&ps=1&st=840";
-
-            //driver.Navigate().GoToUrl(site);
 
             if (orderStart && confidence > 0.65)
             {
@@ -438,18 +437,130 @@ namespace AppGui
             }
         }
 
+        private static void changeDate(ChromeDriver driver)
+        {
+            WebDriverWait wait;
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+
+            string action = "Entregar agora";
+            driver.FindElementByXPath("//parent::*[contains(text(), '" + action + "')]").Click();
+            //driver.FindElement(By.CssSelector("button[class='ao aq bi bj bk ah b2'")).Click();
+            action = "Agendar para mais tarde";
+            //wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath("//parent::*[contains(text(), '" + action + "')]")));
+            driver.FindElementByXPath("//parent::*[contains(text(), '" + action + "')]").Click();
+
+            // Adicionar switch para opções
+            action = "Definir hora de entrega";
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath("//button[contains(text(), '" + action + "')]")));
+            driver.FindElementByXPath("//button[contains(text(), '" + action + "')]").Click();
+            driver.Navigate().Refresh();
+        }
+
+        private static void foodOptions(ChromeDriver driver, string itemName)
+        {
+            WebDriverWait wait;
+            IWebElement element;
+
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath("//*[contains(text(), '" + itemName + "')]")));
+
+            element = driver.FindElementByXPath("//*[contains(text(), '" + itemName + "')]");
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
+            System.Threading.Thread.Sleep(500);
+
+            driver.FindElementByXPath("//*[contains(text(), '" + itemName + "')]").Click();
+        }
+
         public static void openUberEatsChrome(ChromeDriver driver)
         {
             // Initialize the Chrome Driver
 
-            // 1. Maximize the browser
-            driver.Manage().Window.Maximize();
+            WebDriverWait wait;
 
-            // 2. Go to the "Google" homepage           
+            // 2. Go to the "UberEats" homepage           
 
             var str = "https://www.ubereats.com/pt-PT/feed/?d=" + DateTime.Now.ToString("yyyy-M-dd") + "&et=870&pl=JTdCJTIyYWRkcmVzcyUyMiUzQSUyMkRFVEklMjAtJTIwRGVwYXJ0YW1lbnRvJTIwZGUlMjBFbGVjdHIlQzMlQjNuaWNhJTJDJTIwVGVsZWNvbXVuaWNhJUMzJUE3JUMzJUI1ZXMlMjBlJTIwSW5mb3JtJUMzJUExdGljYSUyMiUyQyUyMnJlZmVyZW5jZSUyMiUzQSUyMkNoSUpzVjdhcjZxaUl3MFJidHRlelhxZVI3YyUyMiUyQyUyMnJlZmVyZW5jZVR5cGUlMjIlM0ElMjJnb29nbGVfcGxhY2VzJTIyJTJDJTIybGF0aXR1ZGUlMjIlM0E0MC42MzMxNzMxMDAwMDAwMSUyQyUyMmxvbmdpdHVkZSUyMiUzQS04LjY1OTQ5MzMlN0Q%3D&ps=1&st=840";
 
             driver.Navigate().GoToUrl(str);
+
+
+            // 1. Maximize the browser
+            driver.Manage().Window.Maximize();
+
+            changeDate(driver);
+            driver.Manage().Window.Minimize();
+            driver.Manage().Window.Maximize();
+
+            // 3. Fill shopping cart
+            driver.FindElementByXPath("//parent::*[contains(text(), 'Procurar')]").Click();
+
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//input[@placeholder='O que deseja?']")));
+
+            var searchBox = driver.FindElementByXPath("//input[@placeholder='O que deseja?']");
+            string place = "(Aveiro Universidade)";
+            searchBox.SendKeys("universidade");
+            searchBox.SendKeys(Keys.Enter);
+
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+            //wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("div[class='bz c4 bx c0 c3']")));
+            //wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("div[class='ds dt du dv dw dx']")));
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//div/*[contains(text(), '" + place + "')]")));
+
+            driver.FindElementByXPath("//div/*[contains(text(), '" + place + "')]").Click();
+
+
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//a[contains(text(), 'Entendido')]")));
+            driver.FindElementByXPath("//a[contains(text(), 'Entendido')]").Click();
+
+
+            string[] food = new string[5];
+            food[0] = "Signature Classic";
+            food[1] = "Chicken Delights";
+            food[2] = "Sundae Morango";
+            food[3] = "Chicken Bacon";
+            food[4] = "Batatas";
+
+
+            string itemName;
+            
+            for (int i = 0; i < food.Count(); i++)
+            {
+                wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//*[contains(text(), '" + food[i] + "')]")));
+
+                Console.Write(food[i]);
+
+                driver.FindElementByXPath("//*[contains(text(), '" + food[i] + "')]").Click();
+                switch (i) {
+                    case 1:
+                        itemName = "Sem molho";
+                        foodOptions(driver, itemName);
+
+                        //driver.FindElementByXPath("//parent::div[contains(text(), 'Sem molho')]");
+                        break;
+                    case 2:
+                        itemName = "Media";
+                        foodOptions(driver, itemName);
+                        break;
+                    case 4:
+                        itemName = "Media";
+                        foodOptions(driver, itemName);
+                        itemName = "Sem molho";
+                        foodOptions(driver, itemName);
+                        break;
+                    default:
+                        break;
+                }
+
+                string action = "Adicionar";
+
+                wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath("//parent::*[contains(text(), '" + action + "') and contains(text(), 'ao pedido')]")));
+
+                driver.FindElementByXPath("//parent::*[contains(text(), '" + action + "') and contains(text(), 'ao pedido')]").Click();
+            }
         }
 
     }
