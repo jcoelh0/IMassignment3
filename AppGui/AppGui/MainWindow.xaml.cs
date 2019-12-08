@@ -23,8 +23,8 @@ namespace AppGui
     public partial class MainWindow : Window
     {
         private MmiCommunication mmiC;
-      
-        
+
+
         //private bool orderDone = false;
         private bool orderStart = false;
         public TimeSpan MyDefaultTimeout { get; private set; }
@@ -47,8 +47,8 @@ namespace AppGui
             t = new Tts();
 
             driver = new ChromeDriver();
-            
-            
+
+
             //t.Speak("2");
 
 
@@ -61,7 +61,7 @@ namespace AppGui
 
             //t.Speak("4");
             Console.WriteLine("before driver...");
-            
+
             Console.WriteLine("after driver function...");
 
             //t.Speak("coccocosocoasodasdas");
@@ -78,36 +78,39 @@ namespace AppGui
 
         private void MmiC_Message(object sender, MmiEventArgs e)
         {
-            Console.Write("A ATUALIZAR?");
-            Console.Write(e.Message.ToString());
-            this.e = e;
+            //Console.Write("A ATUALIZAR?");
+            //Console.Write(e.Message.ToString());
+            //this.e = e;
             //Console.WriteLine(e.Message);
             var doc = XDocument.Parse(e.Message);
-            
+
             var com = doc.Descendants("command").FirstOrDefault().Value;
             dynamic json = JsonConvert.DeserializeObject(com);
 
 
-            double confidence = double.Parse(json.recognized[0].ToString());
-            
+            double confidence = double.Parse(json.recognized[2].ToString());
+
             WebDriverWait wait;
 
             //Console.WriteLine(json.recognized[2].ToString());
 
-            
-
             var confirmation = (string)json.recognized[1].ToString();
             switch (confirmation) //confimation
             {
-                case "AvancarL":
-                    break;
                 case "esvaziarC":
-                    t.Speak("Ok, até breve!");
-                    driver.Close();
-                    System.Environment.Exit(1);
+                    //t.Speak("Ok, até breve!");
+                    //driver.Close();
+                    //System.Environment.Exit(1);
+                    esvaziarCarrinho();
                     break;
                 case "RecuarR":
-                    leaving = false;
+                    //driver.ExecuteScript("window.history.go(-1)");
+                    if (confidence > 0.9)
+                        driver.Navigate().Back();
+                    break;
+                case "AvancarL":
+                    if (confidence > 0.9)
+                        driver.Navigate().Forward();
                     break;
                 case "ScrollDR":
                     scrollSmooth();
@@ -116,9 +119,13 @@ namespace AppGui
                     scrollSmooth();
                     break;
                 default:
-                    t.Speak("Não percebi");
+                    //t.Speak("Não percebi");
                     break;
-            } 
+            }
+
+            //var site = "https://www.ubereats.com/pt-PT/feed/?d=" + DateTime.Now.ToString("yyyy-M-dd") + "&et=870&pl=JTdCJTIyYWRkcmVzcyUyMiUzQSUyMkRFVEklMjAtJTIwRGVwYXJ0YW1lbnRvJTIwZGUlMjBFbGVjdHIlQzMlQjNuaWNhJTJDJTIwVGVsZWNvbXVuaWNhJUMzJUE3JUMzJUI1ZXMlMjBlJTIwSW5mb3JtJUMzJUExdGljYSUyMiUyQyUyMnJlZmVyZW5jZSUyMiUzQSUyMkNoSUpzVjdhcjZxaUl3MFJidHRlelhxZVI3YyUyMiUyQyUyMnJlZmVyZW5jZVR5cGUlMjIlM0ElMjJnb29nbGVfcGxhY2VzJTIyJTJDJTIybGF0aXR1ZGUlMjIlM0E0MC42MzMxNzMxMDAwMDAwMSUyQyUyMmxvbmdpdHVkZSUyMiUzQS04LjY1OTQ5MzMlN0Q%3D&ps=1&st=840";
+
+            //driver.Navigate().GoToUrl(site);
 
             if (orderStart && confidence > 0.65)
             {
@@ -144,7 +151,7 @@ namespace AppGui
                         /*var numero = driver.FindElementsByXPath("//descendant::div[@class='al an bo']"); // Recebe numero de items. driver.FindElement retorna objecto System...
                         action = "Adiciona " + numero + " ao pedido";
                         driver.FindElementByXPath("//parent::*[contains(text(), '" + action + "')]").Click();*/
-                        
+
                         action = "Adiciona";
                         driver.FindElementByXPath("//parent::*[contains(text(), '" + action + "') and contains(text(), 'ao pedido')]").Click();
 
@@ -203,7 +210,7 @@ namespace AppGui
                     default:
                         break;
                 }
-                
+
                 switch ((string)json.recognized[3].ToString()) //restaurants
                 {
 
@@ -260,7 +267,7 @@ namespace AppGui
                                 //tts escolha a opção desejada
                                 break;
                         }
-                        
+
                         if ((string)json.recognized[4].ToString() == "")
                         {
                             t.Speak("De qual?");
@@ -268,7 +275,7 @@ namespace AppGui
                         {
                             t.Speak("Que produto quer adquirir?");
                         }
-                        
+
                         break;
                     case "MONTADITOS":
                         driver.FindElementByXPath("//parent::*[contains(text(), 'Procurar')]").Click();
@@ -277,7 +284,7 @@ namespace AppGui
                         {
                             searchBox.SendKeys(Keys.Backspace);
                         }
-                        searchBox.SendKeys("100 montaditos ");  
+                        searchBox.SendKeys("100 montaditos ");
 
                         searchBox.SendKeys(Keys.Enter);
 
@@ -339,7 +346,7 @@ namespace AppGui
 
                         break;
                 }
-                
+
                 switch ((string)json.recognized[6].ToString()) //food on mcdonalds
                 {
                     case "":
@@ -354,7 +361,7 @@ namespace AppGui
                         t.Speak("Deseja alterar o seu pedido?");
                         break;
                 }
-                
+
 
                 IWebElement element;
 
@@ -373,16 +380,39 @@ namespace AppGui
                         ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
                         System.Threading.Thread.Sleep(500);
 
-                        driver.FindElementByXPath("//*[contains(text(), '" + itemName + "')]").Click();
+                        driver.FindElementByXPath("/[contains(text(), '" + itemName + "')]").Click();
                         break;
                 }
 
             }
         }
 
-        public void scrollSmooth()
+        private void esvaziarCarrinho()
         {
-            while(true)
+            cartClicked = !cartClicked;
+            if (!cartClicked)
+                driver.FindElementByXPath("//button[@aria-label='checkout']").Click();
+
+            //var a
+            //for ()
+            //List<WebElement> itensCarrinho = driver.FindElementsByCssSelector("li[class='al am']");
+            var itensCarrinho = driver.FindElementsByCssSelector("li[class='al am']");
+            for (int i = 0; i < itensCarrinho.Count(); i++)
+            {
+                var drpCarrinho = driver.FindElementByCssSelector("select[class='b8 b9 cn bb gs cq cs ae aj gt gu gv gw b2']");
+                //var drpCarrinho = driver.FindElementByCssSelector("select[class='b5 b6 c1 b8 jm c5 c7 ae aj jn jo jp jq az']");
+                var selectElement = new SelectElement(drpCarrinho);
+                selectElement.SelectByValue("0");
+            }
+            //var selectElement = new SelectElement(drpCarrinho);
+            //selectElement.SelectByValue("0");
+
+            driver.FindElementByCssSelector("button[class='af eh ei ej ek el em ao aq dt b2']").Click();
+        }
+
+        private void scrollSmooth()
+        {
+            while (true)
             {
                 ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0,1)", "");
                 //le o array
@@ -390,8 +420,8 @@ namespace AppGui
                 mmiC.Message += MmiC_Message;
                 mmiC.Start();
                 //t.Speak("3");
-                
-                
+
+
                 var doc = XDocument.Parse(e.Message);
 
                 var com = doc.Descendants("command").FirstOrDefault().Value;
@@ -399,84 +429,28 @@ namespace AppGui
 
 
                 //Console.Write(mmiC.ToString());
-                
+
                 //Console.Write("im here");
 
                 if ((string)json.recognized[1].ToString() == "StopS")
                     break;
-                
+
             }
         }
 
         public static void openUberEatsChrome(ChromeDriver driver)
         {
             // Initialize the Chrome Driver
-            //using (driver)
-            //{
+
             // 1. Maximize the browser
             driver.Manage().Window.Maximize();
 
-            // 2. Go to the "Google" homepage
-            /*driver.Navigate().GoToUrl("https://www.ubereats.com/pt-PT/feed/?pl=JTdCJTIyYWRkcmVzcyUyMiUzQSUyMkRFVEklMjAtJTIwRGVwYXJ0YW1lbnRvJTIwZGUlMjBFbGVjdHIlQzMlQjNuaWNhJTJDJTIwVGVsZWNvbXVuaWNhJUMzJUE3JUMzJUI1ZXMlMjBlJTIwSW5mb3JtJUMzJUExdGljYSUyMiUyQyUyMnJlZmVyZW5jZSUyMiUzQSUyMkNoSUpzVjdhcjZxaUl3MFJidHRlelhxZVI3YyUyMiUyQyUyMnJlZmVyZW5jZVR5cGUlMjIlM0ElMjJnb29nbGVfcGxhY2VzJTIyJTJDJTIybGF0aXR1ZGUlMjIlM0E0MC42MzMxNzMxMDAwMDAwMSUyQyUyMmxvbmdpdHVkZSUyMiUzQS04LjY1OTQ5MzMlN0Q%3D");
-            */
+            // 2. Go to the "Google" homepage           
 
             var str = "https://www.ubereats.com/pt-PT/feed/?d=" + DateTime.Now.ToString("yyyy-M-dd") + "&et=870&pl=JTdCJTIyYWRkcmVzcyUyMiUzQSUyMkRFVEklMjAtJTIwRGVwYXJ0YW1lbnRvJTIwZGUlMjBFbGVjdHIlQzMlQjNuaWNhJTJDJTIwVGVsZWNvbXVuaWNhJUMzJUE3JUMzJUI1ZXMlMjBlJTIwSW5mb3JtJUMzJUExdGljYSUyMiUyQyUyMnJlZmVyZW5jZSUyMiUzQSUyMkNoSUpzVjdhcjZxaUl3MFJidHRlelhxZVI3YyUyMiUyQyUyMnJlZmVyZW5jZVR5cGUlMjIlM0ElMjJnb29nbGVfcGxhY2VzJTIyJTJDJTIybGF0aXR1ZGUlMjIlM0E0MC42MzMxNzMxMDAwMDAwMSUyQyUyMmxvbmdpdHVkZSUyMiUzQS04LjY1OTQ5MzMlN0Q%3D&ps=1&st=840";
 
             driver.Navigate().GoToUrl(str);
-
-            // 3. Find the search textbox (by ID) on the homepage
-
-
-            //WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
-            //wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("button[class='ao aq b2']")));
-
-
-            //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-
-            //driver.Manage().Window.Minimize();
-            //driver.Manage().Window.Maximize();
-            //driver.FindElement(By.CssSelector("button[class='ao aq b2']")).Click(); //By.CssSelector("button[class='ao aq b2]'"));
-                                                                                    //driver.FindElementByCssSelector("button.ao.aq.b2");
-                                                                                    //searchBox.Click();
-                                                                                    //searchBox.SendKeys(Keys.Enter);
-                                                                                    //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-
-            //wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
-            //wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("#search-suggestions-input")));
-
-
-
-
-
-
-            /*
-
-            new WebDriverWait(driver, MyDefaultTimeout).Until(
-            d => ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState").Equals("complete"));
-
-
-            searchBox.SendKeys("DETI");
-
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
-            wait.Until(ExpectedConditions.ElementToBeClickable(By.Id("location-enter-address-item-0")));
-
-            searchBox.SendKeys(Keys.Enter);
-            */
-
-            //WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
-            //wait.Until(ExpectedConditions.ElementToBeClickable(By.Id("location-enter-address-item-0")));
-
-            //IWebElement deti = driver.FindElementByCssSelector("button[type='submit']");
-            //deti.Click();
-            // 6. Click "Submit" to start the search
-            //searchBox.SendKeys(Keys.Enter);
-
-            // 7. Find the "Id" of the "Div" containing results stats
-            //var searchResults = driver.FindElementById("resultStats");
-
-            //Console.ReadKey();
-            // }
         }
-        
+
     }
 }
