@@ -515,12 +515,12 @@ namespace AppGui
             driver.FindElementByXPath("//a[contains(text(), 'Entendido')]").Click();
 
 
-            string[] food = new string[5];
+            string[] food = new string[4];
             food[0] = "Signature Classic";
             food[1] = "Chicken Delights";
             food[2] = "Sundae Morango";
-            food[3] = "Chicken Bacon";
-            food[4] = "Batatas";
+            food[3] = "Batatas";
+            //food[4] = "Chicken Bacon";
 
 
             string itemName;
@@ -528,7 +528,7 @@ namespace AppGui
             for (int i = 0; i < food.Count(); i++)
             {
                 wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
-                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//*[contains(text(), '" + food[i] + "')]")));
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath("//*[contains(text(), '" + food[i] + "')]")));
 
                 Console.Write(food[i]);
 
@@ -544,7 +544,7 @@ namespace AppGui
                         itemName = "Media";
                         foodOptions(driver, itemName);
                         break;
-                    case 4:
+                    case 3:
                         itemName = "Media";
                         foodOptions(driver, itemName);
                         itemName = "Sem molho";
