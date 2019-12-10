@@ -14,6 +14,7 @@ using OpenQA.Selenium.Support.UI;
 using Microsoft.Speech.Synthesis;
 using multimodal;
 using System.Globalization;
+using System.Collections.Generic;
 
 namespace AppGui
 {
@@ -104,7 +105,7 @@ namespace AppGui
                     //t.Speak("Ok, até breve!");
                     //driver.Close();
                     //System.Environment.Exit(1);
-                    esvaziarCarrinho();
+                    //esvaziarCarrinho();
                     break;
                 case "RecuarR":
                     //driver.ExecuteScript("window.history.go(-1)");
@@ -386,19 +387,22 @@ namespace AppGui
             }
         }
 
-        private void esvaziarCarrinho()
+        private static void esvaziarCarrinho(ChromeDriver driver) // Remover STATIC para deployment!!! STATIC é apenas utilizado para testes sem Kinect
         {
+            bool cartClicked = false; 
             cartClicked = !cartClicked;
             if (!cartClicked)
                 driver.FindElementByXPath("//button[@aria-label='checkout']").Click();
 
-            //var a
-            //for ()
-            //List<WebElement> itensCarrinho = driver.FindElementsByCssSelector("li[class='al am']");
-            var itensCarrinho = driver.FindElementsByCssSelector("li[class='al am']");
-            for (int i = 0; i < itensCarrinho.Count(); i++)
+            //IList<IWebElement> itensCarrinho = driver.FindElementsByCssSelector("li[class='al am']");
+            IList<IWebElement> itensCarrinho = driver.FindElementsByCssSelector("li[class='ao ap']"); // !!! CLASS MUDA !!! ARRANJAR ALTERNATIVA
+            //var itensCarrinho = driver.FindElementsByCssSelector("li[class='al am']");
+            //for (int i = 0; i < itensCarrinho.size(); i++)
+            Console.Write("\n\nCOUNT: " + itensCarrinho.Count + "\n\n");
+            foreach (IWebElement item in itensCarrinho)
             {
-                var drpCarrinho = driver.FindElementByCssSelector("select[class='b8 b9 cn bb gs cq cs ae aj gt gu gv gw b2']");
+                //var drpCarrinho = driver.FindElementByCssSelector("select[class='b8 b9 cn bb gs cq cs ae aj gt gu gv gw b2']");
+                var drpCarrinho = driver.FindElementByCssSelector("select[class='b8 b9 cs bb jo cv cx ae aj dh di dj jp b2']"); // !!! CLASS MUDA !!! ARRANJAR ALTERNATIVA
                 //var drpCarrinho = driver.FindElementByCssSelector("select[class='b5 b6 c1 b8 jm c5 c7 ae aj jn jo jp jq az']");
                 var selectElement = new SelectElement(drpCarrinho);
                 selectElement.SelectByValue("0");
@@ -406,7 +410,7 @@ namespace AppGui
             //var selectElement = new SelectElement(drpCarrinho);
             //selectElement.SelectByValue("0");
 
-            driver.FindElementByCssSelector("button[class='af eh ei ej ek el em ao aq dt b2']").Click();
+            //driver.FindElementByCssSelector("button[class='af eh ei ej ek el em ao aq dt b2']").Click();
         }
 
         private void scrollSmooth()
@@ -561,6 +565,8 @@ namespace AppGui
 
                 driver.FindElementByXPath("//parent::*[contains(text(), '" + action + "') and contains(text(), 'ao pedido')]").Click();
             }
+
+            esvaziarCarrinho(driver);
         }
 
     }
