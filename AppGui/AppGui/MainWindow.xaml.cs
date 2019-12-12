@@ -102,9 +102,6 @@ namespace AppGui
             switch (confirmation) //confimation
             {
                 case "esvaziarC":
-                    //t.Speak("Ok, até breve!");
-                    //driver.Close();
-                    //System.Environment.Exit(1);
                     //esvaziarCarrinho();
                     break;
                 case "RecuarR":
@@ -387,10 +384,31 @@ namespace AppGui
             }
         }
 
-        private static void esvaziarCarrinho(ChromeDriver driver) // Remover STATIC para deployment!!! STATIC é apenas utilizado para testes sem Kinect
+        private void sairAplicacao()
         {
-            bool cartClicked = false; 
-            cartClicked = !cartClicked;
+            driver.Close();
+            System.Environment.Exit(1);
+        }
+
+        private static void fecharCarrinho(ChromeDriver driver)
+        //private void fecharCarrinho()
+        {
+            driver.FindElementByXPath("//button[count(ancestor::*)=count(//div[text()='O seu pedido']/ancestor::*)]").Click();
+        }
+
+        private void verCarrinho()
+        {
+            //cartClicked = !cartClicked;
+            if (!cartClicked)
+            {
+                driver.FindElementByXPath("//button[@aria-label='checkout']").Click();
+            }
+        }
+
+        private static void esvaziarCarrinho(ChromeDriver driver, bool cartClicked) // Remover STATIC e parametro de entrada para deployment!!! STATIC é apenas utilizado para testes sem Kinect
+        //private void esvaziarCarrinho()
+        {
+            //cartClicked = !cartClicked;
             if (!cartClicked)
                 driver.FindElementByXPath("//button[@aria-label='checkout']").Click();
 
@@ -402,8 +420,10 @@ namespace AppGui
             foreach (IWebElement item in itensCarrinho)
             {
                 //var drpCarrinho = driver.FindElementByCssSelector("select[class='b8 b9 cn bb gs cq cs ae aj gt gu gv gw b2']");
-                var drpCarrinho = driver.FindElementByCssSelector("select[class='b8 b9 cs bb jo cv cx ae aj dh di dj jp b2']"); // !!! CLASS MUDA !!! ARRANJAR ALTERNATIVA
                 //var drpCarrinho = driver.FindElementByCssSelector("select[class='b5 b6 c1 b8 jm c5 c7 ae aj jn jo jp jq az']");
+                //var drpCarrinho = driver.FindElementByCssSelector("select[class='b8 b9 cs bb jo cv cx ae aj dh di dj jp b2']"); // !!! CLASS MUDA !!! ARRANJAR ALTERNATIVA
+                //var drpCarrinho = driver.FindElementByCssSelector("select[class='b8 b9 cs bb kx cv cx ae aj fw fx fy ky b2']"); // !!! CLASS MUDA !!! ARRANJAR ALTERNATIVA
+                var drpCarrinho = driver.FindElementByXPath("//option[text()='Remover']/parent::select");
                 var selectElement = new SelectElement(drpCarrinho);
                 selectElement.SelectByValue("0");
             }
@@ -479,7 +499,7 @@ namespace AppGui
         {
             // Initialize the Chrome Driver
 
-            WebDriverWait wait;
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
 
             // 2. Go to the "UberEats" homepage           
 
@@ -492,13 +512,16 @@ namespace AppGui
             driver.Manage().Window.Maximize();
 
             changeDate(driver);
-            driver.Manage().Window.Minimize();
-            driver.Manage().Window.Maximize();
+            //driver.Manage().Window.Minimize();
+            //driver.Manage().Window.Maximize();
+            //driver.SwitchTo().Window(driver.WindowHandles.Last());
+            ((IJavaScriptExecutor)driver).ExecuteScript("window.blur();");
+            ((IJavaScriptExecutor)driver).ExecuteScript("window.focus();");
 
             // 3. Fill shopping cart
-            driver.FindElementByXPath("//parent::*[contains(text(), 'Procurar')]").Click();
+            //driver.FindElementByXPath("//parent::*[contains(text(), 'Procurar')]").Click();
+            driver.FindElementByXPath("//div[contains(text(), 'Procurar')]/parent::button").Click();
 
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
             wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//input[@placeholder='O que deseja?']")));
 
             var searchBox = driver.FindElementByXPath("//input[@placeholder='O que deseja?']");
@@ -506,7 +529,7 @@ namespace AppGui
             searchBox.SendKeys("universidade");
             searchBox.SendKeys(Keys.Enter);
 
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+            //wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
             //wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("div[class='bz c4 bx c0 c3']")));
             //wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.CssSelector("div[class='ds dt du dv dw dx']")));
             wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//div/*[contains(text(), '" + place + "')]")));
@@ -514,7 +537,7 @@ namespace AppGui
             driver.FindElementByXPath("//div/*[contains(text(), '" + place + "')]").Click();
 
 
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+            //wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
             wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//a[contains(text(), 'Entendido')]")));
             driver.FindElementByXPath("//a[contains(text(), 'Entendido')]").Click();
 
@@ -531,7 +554,7 @@ namespace AppGui
             
             for (int i = 0; i < food.Count(); i++)
             {
-                wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+                //wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
                 wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath("//*[contains(text(), '" + food[i] + "')]")));
 
                 Console.Write(food[i]);
@@ -560,13 +583,22 @@ namespace AppGui
 
                 string action = "Adicionar";
 
-                wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+                //wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
                 wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath("//parent::*[contains(text(), '" + action + "') and contains(text(), 'ao pedido')]")));
 
                 driver.FindElementByXPath("//parent::*[contains(text(), '" + action + "') and contains(text(), 'ao pedido')]").Click();
             }
 
-            esvaziarCarrinho(driver);
+
+            // 4. Close shopping cart
+            fecharCarrinho(driver);
+
+
+            // 5. Clear shopping cart
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath("//button[@aria-label='checkout']")));
+
+            bool cartClicked = false;
+            esvaziarCarrinho(driver, cartClicked);
         }
 
     }
