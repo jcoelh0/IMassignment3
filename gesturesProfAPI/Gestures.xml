@@ -30,4 +30,9 @@
     <NAME>StopScroll</NAME>
     <SEMANTIC>StopS</SEMANTIC>
   </Gesture>
+  <Gesture>
+    <ID>6</ID>
+    <NAME>verCarrinho</NAME>
+    <SEMANTIC>verC</SEMANTIC>
+  </Gesture>
 </Gestures>
