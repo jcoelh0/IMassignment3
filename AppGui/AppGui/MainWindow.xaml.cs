@@ -512,11 +512,11 @@ namespace AppGui
             driver.Manage().Window.Maximize();
 
             changeDate(driver);
-            //driver.Manage().Window.Minimize();
-            //driver.Manage().Window.Maximize();
+            driver.Manage().Window.Minimize();
+            driver.Manage().Window.Maximize();
             //driver.SwitchTo().Window(driver.WindowHandles.Last());
-            ((IJavaScriptExecutor)driver).ExecuteScript("window.blur();");
-            ((IJavaScriptExecutor)driver).ExecuteScript("window.focus();");
+            //((IJavaScriptExecutor)driver).ExecuteScript("window.blur();");
+            //((IJavaScriptExecutor)driver).ExecuteScript("window.focus();");
 
             // 3. Fill shopping cart
             //driver.FindElementByXPath("//parent::*[contains(text(), 'Procurar')]").Click();
