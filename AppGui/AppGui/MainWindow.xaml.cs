@@ -204,6 +204,7 @@ namespace AppGui
             System.Threading.Thread.Sleep(500);
 
             driver.FindElementByXPath("//*[contains(text(), '" + itemName + "')]").Click();
+            //driver.FindElementByXPath("//div[contains(text(), '" + itemName + "')]/ancestor::label").Click();
         }
 
         public void openUberEatsChrome(ChromeDriver driver)
@@ -248,11 +249,11 @@ namespace AppGui
             driver.FindElementByXPath("//a[contains(text(), 'Entendido')]").Click();
 
 
-            string[] food = new string[4];
+            string[] food = new string[3];
             food[0] = "Signature Classic";
             food[1] = "Chicken Delights";
             food[2] = "Sundae Morango";
-            food[3] = "Batatas";
+            //food[3] = "Batatas";
             //food[4] = "Chicken Bacon";
 
 
